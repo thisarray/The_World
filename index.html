@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map of the world</title>
+  <script id="markers" type="application/json">
+[
+    {
+        "latitude": 0,
+        "longitude": 0,
+        "name": "Zero"
+    },
+    {
+        "latitude": 20,
+        "longitude": 0,
+        "name": "Up"
+    },
+    {
+        "latitude": 0,
+        "longitude": 40,
+        "name": "Right"
+    },
+    {
+        "latitude": -60,
+        "longitude": 0,
+        "name": "Down"
+    },
+    {
+        "latitude": 0,
+        "longitude": -80,
+        "name": "Left"
+    }
+]
+  </script>
+  <style type="text/css" media="screen">
+body {
+  background-color: white;
+  color: black;
+}
+canvas {
+  border: 1px solid black;
+  display: block;
+  width: 360px;
+  height: 180px;
+}
+  </style>
+</head>
+
+<body>
+
+<main>
+<h1>Map of the world</h1>
+
+<canvas id="world"></canvas>
+
+</main>
+
+<script>
+/*
+ * Draw the markers specified with JSON in markerID in the canvas element with canvasID.
+ */
+function drawMarkers(markerID, canvasID, color = 'red') {
+  const TWO_PI = Math.PI * 2;
+
+  let markers = JSON.parse(document.querySelector(markerID).textContent),
+      canvas = document.querySelector(canvasID),
+      context = canvas.getContext('2d'),
+      horizontalScale = canvas.width / 360,
+      verticalScale = canvas.height / 180;
+
+  // Move to the center of the canvas
+  context.translate(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
+  // Scale the y-axis so it is negative going down
+  context.scale(1, -1);
+  context.fillStyle = color;
+
+  // Draw the markers
+  for (let marker of markers) {
+    context.beginPath();
+    context.arc(marker['longitude'] * horizontalScale, marker['latitude'] * verticalScale, 1, 0, TWO_PI, false);
+    context.fill();
+  }
+}
+
+window.addEventListener('load', (event) => {
+  drawMarkers('#markers', '#world');
+});
+</script>
+</body>
+
+</html>
