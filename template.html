@@ -40,10 +40,11 @@ body {
   color: black;
 }
 canvas {
+  background-image: url(BlankMap-World-Equirectangular.svg);
+  background-repeat: no-repeat;
+  background-size: 100% 111%;
   border: 1px solid black;
   display: block;
-  width: 360px;
-  height: 180px;
 }
   </style>
 </head>
@@ -59,21 +60,44 @@ canvas {
 
 <script>
 /*
+ * Integer magnification of the map canvas.
+ */
+const SCALE = 3;
+
+/*
+ * Integer width of the map canvas in pixels.
+ */
+const WIDTH = 360 * SCALE;
+
+/*
+ * Integer height of the map canvas in pixels.
+ */
+const HEIGHT = 180 * SCALE;
+
+/*
  * Draw the markers specified in data in the canvas element with canvasID.
  */
 function drawMarkers(data, canvasID, color = 'red') {
   const TWO_PI = Math.PI * 2;
 
   let canvas = document.querySelector(canvasID),
-      context = canvas.getContext('2d'),
-      horizontalScale = canvas.width / 360,
-      verticalScale = canvas.height / 180;
+      context;
 
+  if (canvas == null) {
+    return;
+  }
+
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  // hand-tuned values to position the background image map
+  canvas.style.backgroundPosition = `${ 15 * SCALE }px -${ 8 * SCALE }px`;
+
+  context = canvas.getContext('2d');
   context.save();
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, WIDTH, HEIGHT);
 
   // Move to the center of the canvas
-  context.translate(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2));
+  context.translate(Math.floor(WIDTH / 2), Math.floor(HEIGHT / 2));
   // Scale the y-axis so it is negative going down
   context.scale(1, -1);
   context.fillStyle = color;
@@ -81,7 +105,7 @@ function drawMarkers(data, canvasID, color = 'red') {
   // Draw the markers
   for (let marker of data) {
     context.beginPath();
-    context.arc(marker['longitude'] * horizontalScale, marker['latitude'] * verticalScale, 1, 0, TWO_PI, false);
+    context.arc(marker['longitude'] * SCALE, marker['latitude'] * SCALE, SCALE, 0, TWO_PI, false);
     context.fill();
   }
 
