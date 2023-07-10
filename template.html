@@ -34,10 +34,17 @@
     }
 ]
   </script>
+  <script src="../jsgame0.js"></script>
   <style type="text/css" media="screen">
 body {
   background-color: white;
   color: black;
+}
+.hidden {
+  display: none;
+}
+#original {
+  margin-left: 1em;
 }
 canvas {
   background-image: url(BlankMap-World-Equirectangular.svg);
@@ -54,7 +61,13 @@ canvas {
 <main>
 <h1>Map of the world</h1>
 
-<canvas id="world"></canvas>
+<canvas id="screen">
+The game screen appears here if your browser supports the Canvas API.
+</canvas>
+<section id="controls">
+  <button type="button" id="reset">Reset</button>
+  <button type="button" id="pause">Pause</button>
+</section>
 
 <h2>Attribution</h2>
 
@@ -70,57 +83,55 @@ is made available under the
  */
 const SCALE = 3;
 
-/*
- * Integer width of the map canvas in pixels.
- */
-const WIDTH = 360 * SCALE;
+WIDTH = 360 * SCALE;
+HEIGHT = 180 * SCALE;
 
 /*
- * Integer height of the map canvas in pixels.
+ * Integer x-coordinate of the center of the screen.
  */
-const HEIGHT = 180 * SCALE;
+const CENTER_X = Math.floor(WIDTH / 2);
 
 /*
- * Draw the markers specified in data in the canvas element with canvasID.
+ * Integer y-coordinate of the center of the screen.
  */
-function drawMarkers(data, canvasID, color = 'red') {
-  const TWO_PI = Math.PI * 2;
+const CENTER_Y = Math.floor(HEIGHT / 2);
 
-  let canvas = document.querySelector(canvasID),
-      context;
+/*
+ * String color to draw the markers.
+ */
+const color = 'red';
 
-  if (canvas == null) {
-    return;
+/*
+ * Return screen coordinates for the corresponding longitude and latitude.
+ */
+function toScreenCoordinates(longitude, latitude) {
+  return [CENTER_X + (longitude * SCALE), CENTER_Y - (latitude * SCALE)];
+}
+
+let markers;
+
+function reset() {
+  markers = JSON.parse(document.querySelector('#markers').textContent);
+  // Pre-calculate the screen coordinates since they do not change
+  for (let m of markers) {
+    let [x, y] = toScreenCoordinates(m['longitude'], m['latitude']);
+    m.x = x;
+    m.y = y;
   }
+}
 
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  // hand-tuned values to position the background image map
-  canvas.style.backgroundPosition = `${ 15 * SCALE }px -${ 8 * SCALE }px`;
-
-  context = canvas.getContext('2d');
-  context.save();
-  context.clearRect(0, 0, WIDTH, HEIGHT);
-
-  // Move to the center of the canvas
-  context.translate(Math.floor(WIDTH / 2), Math.floor(HEIGHT / 2));
-  // Scale the y-axis so it is negative going down
-  context.scale(1, -1);
-  context.fillStyle = color;
-
-  // Draw the markers
-  for (let marker of data) {
-    context.beginPath();
-    context.arc(marker['longitude'] * SCALE, marker['latitude'] * SCALE, SCALE, 0, TWO_PI, false);
-    context.fill();
+function draw() {
+  screen.clear('transparent');
+  for (let {x, y, name} of markers) {
+    screen.draw.filled_circle([x, y], SCALE, color);
   }
-
-  context.restore();
 }
 
 window.addEventListener('load', (event) => {
-  let data = JSON.parse(document.querySelector('#markers').textContent);
-  drawMarkers(data, '#world');
+  screen.init();
+
+  // hand-tuned values to position the background image map
+  document.querySelector('#screen').style.backgroundPosition = `${ 15 * SCALE }px -${ 8 * SCALE }px`;
 });
 </script>
 </body>
