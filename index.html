@@ -145,6 +145,11 @@ function draw() {
   screen.clear('transparent');
   for (let {x, y, name} of markers) {
     screen.draw.filled_circle([x, y], SCALE, color);
+    screen.draw.text(name, {
+      midtop: [x, y],
+      color: color,
+      fontsize: 16
+    });
   }
 }
 
