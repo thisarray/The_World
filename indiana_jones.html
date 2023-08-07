@@ -151,7 +151,7 @@ let markers, color, plane, index;
  */
 function nextLeg() {
   index++;
-  if (index < (markers.length - 1)) {
+  if ((0 <= index) && (index < (markers.length - 1))) {
     // Assumes plane is at markers[index] and the next destination is markers[index+1]
     let target = [markers[index+1].x, markers[index+1].y];
     // Offset the angle because the image is facing up
@@ -172,9 +172,14 @@ function reset() {
   }
 
   plane = new Actor('plane');
-  plane.pos = [markers[0].x, markers[0].y];
   index = -1;
-  nextLeg();
+  if (markers.length > 0) {
+    plane.pos = [markers[0].x, markers[0].y];
+    nextLeg();
+  }
+  else {
+    plane.pos = toScreenCoordinates(0, 0);
+  }
 }
 
 function draw() {
@@ -188,12 +193,14 @@ function draw() {
     });
   }
 
-  for (let i = 0; i <= index; i++) {
-    if (i < index) {
-      screen.draw.line([markers[i].x, markers[i].y], [markers[i+1].x, markers[i+1].y], TRAVEL_COLOR, SCALE);
-    }
-    else {
-      screen.draw.line([markers[i].x, markers[i].y], plane.pos, TRAVEL_COLOR, SCALE);
+  if (markers.length > 0) {
+    for (let i = 0; i <= index; i++) {
+      if (i < index) {
+        screen.draw.line([markers[i].x, markers[i].y], [markers[i+1].x, markers[i+1].y], TRAVEL_COLOR, SCALE);
+      }
+      else {
+        screen.draw.line([markers[i].x, markers[i].y], plane.pos, TRAVEL_COLOR, SCALE);
+      }
     }
   }
   plane.draw();
